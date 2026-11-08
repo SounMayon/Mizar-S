@@ -122,7 +122,7 @@ void protected_pin_err();
 
 extern bool auto_manu_level_sel;
 extern bool filament_runout_sel;
-extern bool led_onoff_sel;
+extern uint8_t led_mode_state;
 
 extern const char NUL_STR[], M112_KILL_STR[], G28_STR[], M21_STR[], M23_STR[], M24_STR[],
                   SP_A_STR[], SP_B_STR[], SP_C_STR[],
