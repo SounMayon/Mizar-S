@@ -203,13 +203,13 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event)
             // Resume only after the printer has completed its pause and the sensor sees filament.
             bool filament_present = true;
             #if PIN_EXISTS(MT_DET_1)
-              filament_present &= READ(MT_DET_1_PIN) == MT_DET_PIN_INVERTING;
+              filament_present &= READ(MT_DET_1_PIN) != MT_DET_PIN_INVERTING;
             #endif
             #if PIN_EXISTS(MT_DET_2)
-              filament_present &= READ(MT_DET_2_PIN) == MT_DET_PIN_INVERTING;
+              filament_present &= READ(MT_DET_2_PIN) != MT_DET_PIN_INVERTING;
             #endif
             #if PIN_EXISTS(MT_DET_3)
-              filament_present &= READ(MT_DET_3_PIN) == MT_DET_PIN_INVERTING;
+              filament_present &= READ(MT_DET_3_PIN) != MT_DET_PIN_INVERTING;
             #endif
 
             if (uiCfg.print_state == PAUSED && filament_present) {
