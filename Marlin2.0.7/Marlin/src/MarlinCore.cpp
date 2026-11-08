@@ -159,8 +159,8 @@ bool auto_manu_level_sel;
 // filament runout check enable
 bool filament_runout_sel;
 
-// led storage status
-bool led_onoff_sel;
+// Remember the selected Mizar S LED mode: 0=off, 1=white, 2=color.
+uint8_t led_mode_state;
 
 
 #if ENABLED(G38_PROBE_TARGET)
@@ -1326,14 +1326,22 @@ void setup() {
   marlin_state = MF_RUNNING;
 	
 #if HAS_TFT_LVGL_UI
-	if(led_onoff_sel){
-		uiCfg.ledSwitch = 2;
-		bltouch._colorLedOn();
-	}else{
-		uiCfg.ledSwitch = 0;
-		bltouch._ledOff();
-	}
-#endif	
+  switch (led_mode_state) {
+    case 1:
+      uiCfg.ledSwitch = 1;
+      bltouch._whiteLedOn();
+      break;
+    case 2:
+      uiCfg.ledSwitch = 2;
+      bltouch._colorLedOn();
+      break;
+    default:
+      led_mode_state = 0;
+      uiCfg.ledSwitch = 0;
+      bltouch._ledOff();
+      break;
+  }
+#endif
 
   SETUP_LOG("setup() completed.");
 }
