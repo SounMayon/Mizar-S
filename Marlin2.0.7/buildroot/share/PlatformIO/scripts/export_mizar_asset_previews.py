@@ -17,11 +17,11 @@ def decode_rgb565(path: Path) -> Image.Image:
     if len(data) < 4:
         raise ValueError("file is shorter than the LVGL image header")
 
-    # LVGL v7 packs cf:5, always_zero:3, width:11 and height:11 into 4 bytes.
+    # LVGL v7 packs cf:5, always_zero:3, reserved:2, width:11 and height:11.
     b0, b1, b2, b3 = data[:4]
     color_format = b0 & 0x1F
-    width = b1 | ((b2 & 0x07) << 8)
-    height = ((b2 >> 3) & 0x1F) | (b3 << 5)
+    width = (b1 >> 2) | ((b2 & 0x1F) << 6)
+    height = (b2 >> 5) | (b3 << 3)
     if color_format != 4:
         raise ValueError(f"unsupported LVGL color format {color_format}; expected RGB565 (4)")
     if not width or not height:
