@@ -55,7 +55,7 @@
 #include "../../../../feature/bltouch.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ENABLED(PARK_HEAD_ON_PAUSE)
 #include "../../../../feature/pause.h"
 #endif
 #include "../../../../gcode/gcode.h"
