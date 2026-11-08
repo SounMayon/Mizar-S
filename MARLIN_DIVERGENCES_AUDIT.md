@@ -59,11 +59,18 @@ Des écarts sont répartis dans le palpage et le nivellement ABL/mesh, G28, G29,
 
 Les autres changements touchent la gestion des commandes G-code, pause M0/M1/M600, SD M24/M25, température et protections, EEPROM, buzzer, chronomètre et traitement des macros/conditions. Certains fichiers amont supprimés sont de la documentation ou des workflows du dépôt et non du firmware embarqué.
 
+### 7. Mémorisation du mode LED
+
+Le changelog V1.9.3 mentionne la mémorisation de l'état de la LED. Dans le code public Geeetech, le réglage est bien écrit en EEPROM après l'action de l'écran et relu au démarrage, mais il est stocké dans un booléen : éteint ou allumé. Si allumé, `MarlinCore.cpp` force le mode couleur; le choix blanc/couleur n'est pas mémorisé. Cela explique que la LED revienne en couleurs même si le mode blanc avait été choisi. La formulation du changelog peut désigner le seul état marche/arrêt; le code ne préserve toutefois pas le mode d'éclairage sélectionné.
+
+La branche étend ce champ à trois états : `0=éteint`, `1=couleur`, `2=blanc`. Le mode couleur garde la valeur EEPROM `1`, ce qui préserve le comportement des anciennes sauvegardes; le champ reste sur un octet et son emplacement dans les données EEPROM n'est pas déplacé. Au démarrage, le firmware restaure maintenant la valeur correspondante et l'état de l'interface. Cette correction doit encore être validée sur l'imprimante en testant les trois modes après redémarrage et l'enregistrement par `M500`.
+
 ## Delta ajouté sur la branche d'audit
 
 À distinguer des personnalisations du fournisseur :
 - `printer_operation.cpp` : correction de l'échantillonnage/anti-rebond du capteur et sauvegarde de la vitesse avant pause;
 - `draw_dialog.cpp` : validation du retour capteur et transition explicite vers la reprise depuis le dialogue;
+- `MarlinCore.cpp`, `MarlinCore.h`, `settings.cpp` et `draw_set.cpp` : mémorisation des trois états LED et restauration du mode choisi au démarrage, avec compatibilité pour les anciennes sauvegardes EEPROM;
 - `geeetech_lcd35.py` : itération sur une copie de `CPPDEFINES` pour éviter la mutation de la collection pendant son parcours dans l'environnement GitHub Actions;
 - workflow GitHub Actions et documentation de compilation/récupération.
 
