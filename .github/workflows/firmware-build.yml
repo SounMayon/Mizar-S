@@ -25,8 +25,8 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install PlatformIO
-        run: python -m pip install --upgrade pip platformio
+      - name: Install PlatformIO and preview dependency
+        run: python -m pip install --upgrade pip platformio Pillow
 
       - name: Compile firmware
         working-directory: Marlin2.0.7
@@ -35,15 +35,22 @@ jobs:
       - name: Prepare Mizar S display assets
         run: python Marlin2.0.7/buildroot/share/PlatformIO/scripts/prepare_mizar_assets.py
 
+      - name: Export decoded image previews
+        run: >-
+          python Marlin2.0.7/buildroot/share/PlatformIO/scripts/export_mizar_asset_previews.py
+          Marlin2.0.7/.pio/build/geeetech_lcd35/assets
+          Marlin2.0.7/.pio/build/geeetech_lcd35/assets-preview
+
       - name: Set GTM32 flash filename
         run: cp Marlin2.0.7/.pio/build/geeetech_lcd35/firmware.bin Marlin2.0.7/.pio/build/geeetech_lcd35/GTM32Source.bin
 
-      - name: Upload firmware build
+      - name: Upload firmware and asset previews
         uses: actions/upload-artifact@v4
         with:
           name: mizar-s-geeetech-lcd35
           path: |
             Marlin2.0.7/.pio/build/geeetech_lcd35/GTM32Source.bin
             Marlin2.0.7/.pio/build/geeetech_lcd35/assets/
+            Marlin2.0.7/.pio/build/geeetech_lcd35/assets-preview/
           if-no-files-found: error
           retention-days: 14
