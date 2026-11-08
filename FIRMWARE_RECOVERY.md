@@ -4,7 +4,7 @@ This note documents the MKS/LVGL firmware paths used by the Mizar S source in th
 
 ## Filament runout
 
-The MKS screen polls the custom filament sensor in `Marlin/src/lcd/extui/lib/mks_ui/printer_operation.cpp`. A missing-filament sample advances a debounce counter, and a present-filament sample reduces it. When the counter reaches 20, the UI pauses SD printing, stops the print timer, and shows the filament-change dialog.
+The MKS screen polls the custom filament sensor in `Marlin2.0.7/Marlin/src/lcd/extui/lib/mks_ui/printer_operation.cpp`. A missing-filament sample advances a debounce counter, and a present-filament sample reduces it. When the counter reaches 20, the UI pauses SD printing, stops the print timer, and shows the filament-change dialog.
 
 The original poll routine applied each sensor sample twice, so the effective debounce time was half the configured count. The branch changes this to one sample per poll and saves the current feedrate when starting the pause.
 
@@ -12,13 +12,13 @@ After the pause motion completes, the dialog's Confirm button now resumes only w
 
 ## M600 and hotbed PID autotune
 
-The source included Marlin's generic `M600` implementation, but `ADVANCED_PAUSE_FEATURE` was commented out, so that command was not compiled into the firmware. This branch now enables `ADVANCED_PAUSE_FEATURE` and its required `NOZZLE_PARK_FEATURE`; the configured park point remains the Marlin configuration value `{ X_MIN_POS + 10, Y_MAX_POS - 10, 20 }`. This enables the standard `M600` G-code path. It is separate from the custom MKS filament-runout dialog described above. The GitHub build must pass before this configuration change is considered compile-verified, and the printer should still be checked for park position, unload/load distances, and touchscreen prompts.
+The source included Marlin's generic `M600` implementation, but `ADVANCED_PAUSE_FEATURE` was commented out, so that command was not compiled into the firmware. Although Marlin includes a generic `M600` implementation, enabling `ADVANCED_PAUSE_FEATURE` on this MKS/LVGL port currently fails the GitHub build: the pause UI refers to menu response symbols that are not available in this screen configuration. The source also has no MKS `ExtUI::onUserConfirmRequired` handler to route the M600 user-confirmation prompts to the touchscreen. Enabling the feature without that UI integration would be incomplete, so it remains disabled pending a complete screen-side port and a successful build. This limitation is separate from the custom filament-runout dialog, which the user has tested successfully.
 
 `PIDTEMPBED` remains enabled. The Marlin bed autotune command `M303 E-1` remains available; this branch intentionally does not apply Geeetech V1.9.8's change that disabled bed PID. That choice preserves hotbed autotune as requested. Temperature-alarm changes from Geeetech V2.0.1 are not inferred from the short changelog and are not represented as implemented here.
 
 ## Power-loss recovery
 
-The source enables `POWER_LOSS_RECOVERY` by default in `Marlin/Configuration_adv.h`. The GTM32 LCD35 A10 board pin map assigns `POWER_LOSS_PIN` to PE3, and the configured loss state is LOW. Recovery data is stored through `POWER_LOSS_STORAGE_EEPROM`; the saved state includes the SD filename and offset, position, temperatures, fan state, feedrate, and other print settings. At startup, a valid recovery record queues `M1000 S`; recovery restores machine state and resumes the SD file at its saved offset.
+The source enables `POWER_LOSS_RECOVERY` by default in `Marlin2.0.7/Marlin/Configuration_adv.h`. The GTM32 LCD35 A10 board pin map assigns `POWER_LOSS_PIN` to PE3, and the configured loss state is LOW. Recovery data is stored through `POWER_LOSS_STORAGE_EEPROM`; the saved state includes the SD filename and offset, position, temperatures, fan state, feedrate, and other print settings. At startup, a valid recovery record queues `M1000 S`; recovery restores machine state and resumes the SD file at its saved offset.
 
 A recovery prompt requires a valid saved record. With the MKS/LVGL board mapping, the PE3 outage input can trigger an immediate save, while regular position checkpoints also update the recovery state. A record may be unavailable if the outage signal is not detected, power does not remain stable long enough to finish the EEPROM write, the SD card or EEPROM data is unavailable, or the job has completed. The firmware can only resume SD-card jobs. These hardware and persistence paths need to be checked on the printer to explain intermittent recovery prompts.
 
@@ -48,4 +48,4 @@ The PNGs let you inspect and recover a viewable copy of the decoded icons. RGB56
 6. Repeat the power interruption test during an active filament pause and verify the saved SD position and restored machine state.
 7. On the Mizar S TFT, inspect every screen/icon that uses an aliased asset; confirm all official Geeetech icons and text render correctly before treating this test package as suitable for regular use.
 
-These are hardware validation steps, not results claimed by this source review. GitHub Actions successfully compiled the Geeetech LCD35 firmware for this branch; the printer-side tests above are still pending.
+The user reports successful printer-side tests of the filament-runout recovery (reinsert filament, manually purge, confirm, and resume) and power-loss recovery. M600/touchscreen integration and the remaining checklist items have not been reported as tested. GitHub Actions must pass on the current branch head before its artifact is treated as build-verified.
