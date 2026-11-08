@@ -98,9 +98,11 @@ Les chemins ci-dessous désignent le sous-répertoire `Marlin2.0.7/` du dépôt 
 
 ## Vérification complémentaire des assets
 
-Le dépôt contient 107 images dans `Resource/icon/` (`bmp_*.jpg`), dont les noms correspondent un pour un aux 107 entrées `.bin` de `Resource/list.txt` après remplacement de l'extension. Il contient aussi `Resource/font/FontUNIGBK.bin`. Les JPG sont les sources graphiques; ils ne sont pas les fichiers `.bin` prêts à placer dans `assets/`. Le convertisseur fourni est une application orientée Windows et sa documentation indique que la sortie `.bin` n'a pas été validée par son auteur. Le paquet d'assets Geeetech distribué dans l'archive liée doit donc servir de référence de sortie, mais il n'a pas encore été incorporé ni comparé octet par octet ici.
+Le dépôt contient 107 images dans `Resource/icon/` (`bmp_*.jpg`), dont les noms correspondent un pour un aux 107 entrées `.bin` de `Resource/list.txt` après remplacement de l'extension. Il contient aussi `Resource/font/FontUNIGBK.bin`. Les JPG sont les sources graphiques; ils ne sont pas les fichiers `.bin` prêts à placer dans `assets/`.
 
-**À corriger avant livraison d'un paquet flashable :** récupérer les assets compilés exacts de Geeetech Mizar S (107 icônes `.bin` plus `FontUNIGBK.bin` si requis), les versionner ou les fournir au workflow de manière vérifiable, remplacer la source MKS générique non épinglée, puis vérifier noms, tailles et empreintes.
+J'ai comparé les noms présents dans les répertoires `Firmware/mks_pic` et `Firmware/mks_font` du dépôt MKS téléchargé par le script : le jeu contient 139 icônes `.bin` et une police. **62 des 107 noms attendus sont présents tels quels; 45 noms attendus sont absents et 77 fichiers MKS sont en surplus.** La police attendue `FontUNIGBK.bin` est présente. Renommer peut corriger quelques différences de noms, mais ne peut pas créer les 45 icônes manquantes. Remplacer les manquantes par des icônes simplement ressemblantes risque d'afficher des pictogrammes trompeurs ou incohérents. Le convertisseur fourni est une application orientée Windows et sa documentation indique que sa sortie `.bin` n'a pas été validée par son auteur.
+
+**À corriger avant livraison d'un paquet flashable :** soit obtenir les 45 icônes manquantes conformes à l'interface Mizar S, soit valider explicitement une correspondance pour chacune; ensuite épingler la version MKS, normaliser les noms réellement équivalents, vérifier les 107 noms attendus, les tailles et les empreintes.
 
 ## Limites
 
