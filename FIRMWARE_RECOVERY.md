@@ -16,6 +16,12 @@ The source enables `POWER_LOSS_RECOVERY` by default in `Marlin/Configuration_adv
 
 A recovery prompt requires a valid saved record. With the MKS/LVGL board mapping, the PE3 outage input can trigger an immediate save, while regular position checkpoints also update the recovery state. A record may be unavailable if the outage signal is not detected, power does not remain stable long enough to finish the EEPROM write, the SD card or EEPROM data is unavailable, or the job has completed. The firmware can only resume SD-card jobs. These hardware and persistence paths need to be checked on the printer to explain intermittent recovery prompts.
 
+## Build and SD-card package
+
+The upstream Geeetech PlatformIO configuration sets `geeetech_lcd35` as its default environment. This branch compiles that environment, which builds for the STM32F103VE board and generates `firmware.bin`. Geeetech's published update instructions say to put a `.bin` file and the `assets` folder at the root of the TF card; they do not specify a required basename. The Mizar S LVGL configuration also documents copying the build's `assets` folder alongside the firmware.
+
+The GitHub Actions artifact now contains both the generated `firmware.bin` and `assets/`, ready to extract to the TF-card root. I found no Geeetech instruction requiring the output to be renamed to `MizarS_FM_V201A_230512.bin`; the branch keeps PlatformIO's generated filename.
+
 ## Verification checklist
 
 1. Build this branch with the Mizar S / `BOARD_GTM32_LCD35_A10` configuration and the original MKS screen enabled.
