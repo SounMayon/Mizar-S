@@ -28,7 +28,7 @@ The official archive is a precompiled firmware package plus display assets; it d
 
 ### Reverse-exporting the display icons
 
-The same workflow runs `export_mizar_asset_previews.py` and adds an `assets-preview/` directory to the GitHub Actions artifact. It contains one PNG per decoded icon plus `contact-sheet.png`, a labeled overview. The script reads LVGL v7 four-byte image headers and decodes the little-endian RGB565 pixels. The logo may be a raw 480×320 RGB565 screen image without an LVGL header, so the exporter handles that format separately. It skips `FontUNIGBK.bin`, which is font data rather than an image. `FontUNIGBK.bin` is skipped because it is font data rather than an image.
+The same workflow runs `export_mizar_asset_previews.py` and adds an `assets-preview/` directory to the GitHub Actions artifact. It contains one PNG per decoded icon plus `contact-sheet.png`, a labeled overview. The script reads LVGL v7 four-byte image headers and decodes the little-endian RGB565 pixels. The 480×320 RGB565 logo may be raw or include a four-byte header; the exporter handles both official Geeetech and raw MKS forms. It skips `FontUNIGBK.bin`, which is font data rather than an image. `FontUNIGBK.bin` is skipped because it is font data rather than an image.
 
 The PNGs let you inspect and recover a viewable copy of the decoded icons. RGB565 stores fewer color levels than the original JPG or PNG, so this cannot reconstruct the exact original source pixels; exporting PNG avoids adding another lossy JPEG pass. Preview files are separate from the `assets/` folder that goes on the SD card. Use the packaged `GTM32Source.bin` basename for flashing; `firmware.bin` is only PlatformIO's intermediate output name.
 
