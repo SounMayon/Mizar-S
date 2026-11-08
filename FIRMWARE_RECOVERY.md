@@ -25,4 +25,4 @@ A recovery prompt requires a valid saved record. With the MKS/LVGL board mapping
 5. Enable PLR, start an SD print, and test power interruption at multiple points after valid layer checkpoints. Confirm that the boot prompt appears and resumes the same file near the saved position.
 6. Repeat the power interruption test during an active filament pause and verify the saved SD position and restored machine state.
 
-These are hardware validation steps, not results claimed by this source review. No firmware build or printer-side test has been run for this branch yet.
+These are hardware validation steps, not results claimed by this source review. GitHub Actions successfully compiled the Geeetech LCD35 firmware for this branch; the printer-side tests above are still pending.
