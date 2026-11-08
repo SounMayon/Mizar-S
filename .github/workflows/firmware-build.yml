@@ -7,7 +7,7 @@ on:
     paths:
       - "Marlin2.0.7/**"
       - ".github/workflows/firmware-build.yml"
-      - "MizarS_FM_V201A_230512.rar"
+      - "Resource/MizarS_FM_V201A_230512.rar"
       - "Resource/list.txt"
   workflow_dispatch:
 
@@ -43,7 +43,7 @@ jobs:
           set -euo pipefail
           official_dir="$RUNNER_TEMP/mizar-s-v201a"
           mkdir -p "$official_dir"
-          7z x -y "MizarS_FM_V201A_230512.rar" "-o$official_dir"
+          7z x -y "Resource/MizarS_FM_V201A_230512.rar" "-o$official_dir"
 
           python - <<'PY'
           from pathlib import Path
