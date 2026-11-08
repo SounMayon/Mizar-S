@@ -184,13 +184,13 @@ static void event_handler(lv_obj_t *obj, lv_event_t event)
 			draw_led_status(buttonLed, labelLed);
 			if(uiCfg.ledSwitch == 1){
 				bltouch._whiteLedOn();
-				led_onoff_sel = 1;
+				led_mode_state = uiCfg.ledSwitch;
 			}else if(uiCfg.ledSwitch == 2){
 				bltouch._colorLedOn();
 				led_onoff_sel = 1;
 			}else{
 				bltouch._ledOff();
-				led_onoff_sel = 0;
+				led_mode_state = uiCfg.ledSwitch;
 			}
 			repeat_time = systick_uptime_millis;
       repeat_event_id = ID_S_LED;
