@@ -32,7 +32,7 @@ Les fichiers d'écran modifiés sont listés ci-dessous; les changements MKS son
 - Les personnalisations concernent l'observation des capteurs, la génération de la pause, les dialogues tactiles, les déplacements/positions de pause et la reprise du travail.
 - Dans le code d'origine Geeetech, la détection et la pause sont présentes, mais le dialogue de l'écran est couplé à son propre état d'interface. Le chemin « filament réinséré → acquittement écran → reprise » doit être vérifié indépendamment du simple déclenchement du capteur.
 - Sur la branche d'audit, les correctifs Codex font partie du delta par rapport à Geeetech : le dialogue d'acquittement vérifie les capteurs configurés avant la reprise et attend l'état de pause; le polling évite le double comptage et préserve le feedrate pour la reprise. Ils ne sont donc pas attribués au firmware original.
-- À tester sur machine : capteur déclenché puis réarmé, plusieurs capteurs s'il y en a, purge manuelle, acquittement, reprise sans redémarrage, reprise après annulation, ainsi que comportement si le filament est retiré à nouveau.
+- Tests imprimante rapportés comme réussis par l'utilisateur : détection de fin de filament, insertion et purge manuelle, acquittement et reprise sans redémarrage. Les scénarios supplémentaires restent à couvrir : plusieurs capteurs s'il y en a, reprise après annulation, et comportement si le filament est retiré à nouveau pendant la reprise.
 
 ### 4. Reprise après coupure (PLR)
 
