@@ -30,14 +30,14 @@ jobs:
       - name: List official firmware archive contents
         run: |
           set -o pipefail
-          7z l -slt MizarS_FM_V201A_230512.rar | tee official-firmware-rar-list.txt
-          sha256sum MizarS_FM_V201A_230512.rar | tee -a official-firmware-rar-list.txt
+          7z l -slt Resource/MizarS_FM_V201A_230512.rar | tee official-firmware-rar-list.txt
+          sha256sum Resource/MizarS_FM_V201A_230512.rar | tee -a official-firmware-rar-list.txt
 
       - name: List firmware utility archive contents
         run: |
           set -o pipefail
-          7z l -slt firmware_tool_V2.0.zip | tee firmware-tool-zip-list.txt
-          sha256sum firmware_tool_V2.0.zip | tee -a firmware-tool-zip-list.txt
+          7z l -slt Resource/firmware_tool_V2.0.zip | tee firmware-tool-zip-list.txt
+          sha256sum Resource/firmware_tool_V2.0.zip | tee -a firmware-tool-zip-list.txt
 
       - name: Upload package inventory
         uses: actions/upload-artifact@v4
