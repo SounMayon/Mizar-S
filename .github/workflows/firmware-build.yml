@@ -32,6 +32,9 @@ jobs:
         working-directory: Marlin2.0.7
         run: pio run --environment geeetech_lcd35
 
+      - name: Prepare Mizar S display assets
+        run: python Marlin2.0.7/buildroot/share/PlatformIO/scripts/prepare_mizar_assets.py
+
       - name: Upload firmware build
         uses: actions/upload-artifact@v4
         with:
