@@ -31,15 +31,19 @@ def rgb565_image(pixel_data: bytes, width: int, height: int) -> Image.Image:
 def decode_rgb565(path: Path) -> Image.Image:
     data = path.read_bytes()
 
-    # The MKS logo is a raw full-screen frame, not a headered LVGL image.
+    # The full-screen logo is 480x320 RGB565. Some vendor packages store
+    # it raw; Geeetech's original Mizar S asset has a four-byte image header.
     if path.name.lower() == "bmp_logo.bin":
         width, height = 480, 320
-        if len(data) != width * height * 2:
-            raise ValueError(
-                f"raw logo size is {len(data)} bytes; expected {width * height * 2} "
-                f"for {width}x{height} RGB565"
-            )
-        return rgb565_image(data, width, height)
+        pixel_bytes = width * height * 2
+        if len(data) == pixel_bytes:
+            return rgb565_image(data, width, height)
+        if len(data) == pixel_bytes + 4:
+            return rgb565_image(data[4:], width, height)
+        raise ValueError(
+            f"logo size is {len(data)} bytes; expected {pixel_bytes} raw bytes "
+            f"or {pixel_bytes + 4} bytes with a four-byte header"
+        )
 
     if len(data) < 4:
         raise ValueError("file is shorter than the LVGL image header")
