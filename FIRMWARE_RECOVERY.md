@@ -10,6 +10,12 @@ The original poll routine applied each sensor sample twice, so the effective deb
 
 After the pause motion completes, the dialog's Confirm button now resumes only when the machine is in `PAUSED` and every configured MKS filament sensor reports filament present. It then switches to `RESUMING`; `printer_state_polling()` returns the head to the saved position and issues `M24`. If the sensor still reports runout, Confirm leaves the dialog open. This supports loading filament and purging manually before confirming.
 
+## M600 and hotbed PID autotune
+
+The source included Marlin's generic `M600` implementation, but `ADVANCED_PAUSE_FEATURE` was commented out, so that command was not compiled into the firmware. This branch now enables `ADVANCED_PAUSE_FEATURE` and its required `NOZZLE_PARK_FEATURE`; the configured park point remains the Marlin configuration value `{ X_MIN_POS + 10, Y_MAX_POS - 10, 20 }`. This enables the standard `M600` G-code path. It is separate from the custom MKS filament-runout dialog described above. The GitHub build must pass before this configuration change is considered compile-verified, and the printer should still be checked for park position, unload/load distances, and touchscreen prompts.
+
+`PIDTEMPBED` remains enabled. The Marlin bed autotune command `M303 E-1` remains available; this branch intentionally does not apply Geeetech V1.9.8's change that disabled bed PID. That choice preserves hotbed autotune as requested. Temperature-alarm changes from Geeetech V2.0.1 are not inferred from the short changelog and are not represented as implemented here.
+
 ## Power-loss recovery
 
 The source enables `POWER_LOSS_RECOVERY` by default in `Marlin/Configuration_adv.h`. The GTM32 LCD35 A10 board pin map assigns `POWER_LOSS_PIN` to PE3, and the configured loss state is LOW. Recovery data is stored through `POWER_LOSS_STORAGE_EEPROM`; the saved state includes the SD filename and offset, position, temperatures, fan state, feedrate, and other print settings. At startup, a valid recovery record queues `M1000 S`; recovery restores machine state and resumes the SD file at its saved offset.
