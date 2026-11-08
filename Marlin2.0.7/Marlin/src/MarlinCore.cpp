@@ -159,7 +159,7 @@ bool auto_manu_level_sel;
 // filament runout check enable
 bool filament_runout_sel;
 
-// Remember the selected Mizar S LED mode: 0=off, 1=white, 2=color.
+// Remember LED mode: 0=off, 1=color (legacy EEPROM value), 2=white.
 uint8_t led_mode_state;
 
 
@@ -1328,12 +1328,12 @@ void setup() {
 #if HAS_TFT_LVGL_UI
   switch (led_mode_state) {
     case 1:
-      uiCfg.ledSwitch = 1;
-      bltouch._whiteLedOn();
-      break;
-    case 2:
       uiCfg.ledSwitch = 2;
       bltouch._colorLedOn();
+      break;
+    case 2:
+      uiCfg.ledSwitch = 1;
+      bltouch._whiteLedOn();
       break;
     default:
       led_mode_state = 0;
