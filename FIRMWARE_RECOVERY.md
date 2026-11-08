@@ -1,0 +1,28 @@
+# Mizar S firmware: filament runout and power-loss recovery
+
+This note documents the MKS/LVGL firmware paths used by the Mizar S source in this repository. The source identifies itself as Marlin 2.0.7; the GitHub repository does not identify this checkout as an exact source export of the vendor binary `MizarS_FM_V201A_230512`. Confirm the installed firmware and board before flashing a build from this branch.
+
+## Filament runout
+
+The MKS screen polls the custom filament sensor in `Marlin/src/lcd/extui/lib/mks_ui/printer_operation.cpp`. A missing-filament sample advances a debounce counter, and a present-filament sample reduces it. When the counter reaches 20, the UI pauses SD printing, stops the print timer, and shows the filament-change dialog.
+
+The original poll routine applied each sensor sample twice, so the effective debounce time was half the configured count. The branch changes this to one sample per poll and saves the current feedrate when starting the pause.
+
+After the pause motion completes, the dialog's Confirm button now resumes only when the machine is in `PAUSED` and every configured MKS filament sensor reports filament present. It then switches to `RESUMING`; `printer_state_polling()` returns the head to the saved position and issues `M24`. If the sensor still reports runout, Confirm leaves the dialog open. This supports loading filament and purging manually before confirming.
+
+## Power-loss recovery
+
+The source enables `POWER_LOSS_RECOVERY` by default in `Marlin/Configuration_adv.h`. The GTM32 LCD35 A10 board pin map assigns `POWER_LOSS_PIN` to PE3, and the configured loss state is LOW. Recovery data is stored through `POWER_LOSS_STORAGE_EEPROM`; the saved state includes the SD filename and offset, position, temperatures, fan state, feedrate, and other print settings. At startup, a valid recovery record queues `M1000 S`; recovery restores machine state and resumes the SD file at its saved offset.
+
+A recovery prompt requires a valid saved record. The firmware can only resume SD-card jobs, and a record may not be usable if power disappears before a valid checkpoint is committed, the card or EEPROM data is unavailable, or the job has completed. The power-loss input, board power hold-up, and EEPROM persistence need to be checked on the physical printer to explain intermittent recovery prompts.
+
+## Verification checklist
+
+1. Build this branch with the Mizar S / `BOARD_GTM32_LCD35_A10` configuration and the original MKS screen enabled.
+2. Start an SD print, trigger runout, wait until the pause completes, insert filament, purge manually, and press Confirm. Check that the print resumes from the saved position.
+3. While the sensor still reports no filament, press Confirm. Check that the printer stays paused.
+4. Repeat the runout test with each configured sensor and verify the polarity on the actual sensor wiring.
+5. Enable PLR, start an SD print, and test power interruption at multiple points after valid layer checkpoints. Confirm that the boot prompt appears and resumes the same file near the saved position.
+6. Repeat the power interruption test during an active filament pause and verify the saved SD position and restored machine state.
+
+These are hardware validation steps, not results claimed by this source review. No firmware build or printer-side test has been run for this branch yet.
