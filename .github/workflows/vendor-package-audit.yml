@@ -1,0 +1,47 @@
+name: Audit official Mizar S packages
+
+on:
+  push:
+    branches:
+      - codex/filament-runout-resume-fix
+    paths:
+      - ".github/workflows/vendor-package-audit.yml"
+      - "MizarS_FM_V201A_230512.rar"
+      - "firmware_tool_V2.0.zip"
+      - "Resource/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-vendor-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+
+      - name: Install 7-Zip
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes 7zip
+
+      - name: List official firmware archive contents
+        run: |
+          7zz l -slt MizarS_FM_V201A_230512.rar | tee official-firmware-rar-list.txt
+          sha256sum MizarS_FM_V201A_230512.rar | tee -a official-firmware-rar-list.txt
+
+      - name: List firmware utility archive contents
+        run: |
+          7zz l -slt firmware_tool_V2.0.zip | tee firmware-tool-zip-list.txt
+          sha256sum firmware_tool_V2.0.zip | tee -a firmware-tool-zip-list.txt
+
+      - name: Upload package inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: mizar-s-official-package-inventory
+          path: |
+            official-firmware-rar-list.txt
+            firmware-tool-zip-list.txt
+          if-no-files-found: error
+          retention-days: 14
