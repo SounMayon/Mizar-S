@@ -36,6 +36,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mizar-s-geeetech-lcd35
-          path: Marlin2.0.7/.pio/build/geeetech_lcd35/firmware.bin
+          path: |
+            Marlin2.0.7/.pio/build/geeetech_lcd35/firmware.bin
+            Marlin2.0.7/.pio/build/geeetech_lcd35/assets/
           if-no-files-found: error
           retention-days: 14
