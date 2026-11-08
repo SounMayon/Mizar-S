@@ -6,8 +6,8 @@ on:
       - codex/filament-runout-resume-fix
     paths:
       - ".github/workflows/vendor-package-audit.yml"
-      - "MizarS_FM_V201A_230512.rar"
-      - "firmware_tool_V2.0.zip"
+      - "Resource/MizarS_FM_V201A_230512.rar"
+      - "Resource/firmware_tool_V2.0.zip"
       - "Resource/**"
   workflow_dispatch:
 
