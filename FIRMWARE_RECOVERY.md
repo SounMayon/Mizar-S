@@ -20,31 +20,15 @@ A recovery prompt requires a valid saved record. With the MKS/LVGL board mapping
 
 The upstream Geeetech PlatformIO configuration sets `geeetech_lcd35` as its default environment. This branch compiles that environment, which builds for the STM32F103VE board and generates `firmware.bin`. For the GTM32 bootloader, the flashable file must be named exactly `GTM32Source.bin`. PlatformIO still generates `firmware.bin` internally; the GitHub workflow copies it to `GTM32Source.bin` for the release artifact. Put `GTM32Source.bin` and the `assets` folder at the root of the TF card.
 
-The GitHub Actions build pins the MKS asset archive to commit `af5eb011d08f2a2e19809e38470f678958530b29` and runs `prepare_mizar_assets.py` after compilation. It keeps exact filename matches, maps the 45 absent names to selected MKS icons, removes surplus icons, and verifies the 107 expected names plus `FontUNIGBK.bin`. The alias choices have now been visually reviewed against the Mizar JPG sources and MKS PNG contact sheet; several obvious mismatches were improved. The mapping remains an **experimental visual substitution set**, not the official Geeetech Mizar S artwork. The repository's `Resource/icon/` still contains the original 107 JPG sources, not the converted MKS-format `.bin` files.
+The official package archive `MizarS_FM_V201A_230512.rar` committed to this branch contains the vendor's `GTM32Source.bin`, `readme.txt`, and complete `assets/` directory. Its 107 icon filenames match `Resource/list.txt`, and it includes the original `FontUNIGBK.bin`. GitHub Actions now extracts and validates that exact asset set after compilation, then replaces PlatformIO's generated display assets with the official Geeetech files. It does not rename substitute MKS artwork. The archive SHA-256 is `510d22e81fc175c608cf94fc6e75eee46bb431b462b078a154749351b96b7f85`.
 
-### Visual review of MKS aliases
+The previous MKS icon/font substitution package was tested on the printer and caused clipped or missing icon artwork and absent UI text. That test confirmed the substitutions are incompatible with the Mizar S UI. Do not use assets from older artifacts produced by the MKS alias workflow.
 
-The 45 aliases were compared by icon shape and apparent function against the source JPGs in `Resource/icon/` and the MKS PNG contact sheet. The most visible corrections are:
-
-| Mizar S icon(s) | MKS source used | Reason for the choice |
-| --- | --- | --- |
-| `buzz_off`, `buzz_on` | `bmp_disable`, `bmp_enable` | A state toggle better communicates off/on than the MKS lightbulb icons, though it does not reproduce the speaker. |
-| `filament_off`, `filament_on` | `bmp_filamentchange` | The spool/filament artwork is closer than a generic toggle. |
-| `cool`, `pre_cool` | `bmp_temp` | A thermometer conveys temperature control more closely than a lightbulb; it is still not the source snowflake. |
-| `disoperate`, `sensor_check` | `bmp_operate` | The MKS crossed-tool artwork better matches the tool/service imagery. |
-| `espeed` | `bmp_speed_extruct` | This is the closest available extruder-speed icon. |
-| `gradient` | `bmp_Power` | Its plotted line is closer to the source graph than the prior mixer-panel icon. |
-| `level_set` | `bmp_tool` | Tool artwork is closer to the source wrench than the prior leveling-scales icon. |
-| `start`, `start_dis` | `bmp_resume` | The play symbol matches the source start buttons better than the printer-status icon. |
-| `switch_off`, `switch_on` | `bmp_disable`, `bmp_enable` | The MKS toggle artwork matches the source switch shape and state. |
-| `toggle` | `bmp_step_move0_1` | Opposing arrows are closer to the source direction-toggle symbol than a switch. |
-| `wait` | `bmp_pause` | The pause symbol matches the source waiting icon more directly. |
-
-Some substitutions remain visibly approximate: MKS has no speaker icon, checkmark, snowflake, Geeetech wordmark at a compatible icon size, or motor-unlock graphic. The leveling and mixing symbols also differ in artwork. These choices should be judged on the printer screen; the contact sheet shows the decoded assets before flashing.
+The official archive is a precompiled firmware package plus display assets; it does not include Marlin C++ source. The vendor readme identifies the package as V2.0.1 (20230512), while this branch's Marlin source still sets `USER_FIRMWARE_VERSION` to `1.9.4`. A build from this branch therefore combines the current branch's firmware code with the correct official screen assets; it is not source-equivalent to the vendor's V2.0.1 firmware. Keep the displayed version honest until the missing Geeetech source changes are identified and ported.
 
 ### Reverse-exporting the display icons
 
-The same workflow runs `export_mizar_asset_previews.py` and adds an `assets-preview/` directory to the GitHub Actions artifact. It contains one PNG per decoded icon plus `contact-sheet.png`, a labeled overview. The script reads LVGL v7 four-byte image headers and decodes the little-endian RGB565 pixels. MKS icon files have one extra trailing byte, which the exporter discards after validating the declared pixel dimensions. The MKS `bmp_logo.bin` is a raw 480×320 RGB565 screen image without an LVGL header, so the exporter handles it separately. `FontUNIGBK.bin` is skipped because it is font data rather than an image.
+The same workflow runs `export_mizar_asset_previews.py` and adds an `assets-preview/` directory to the GitHub Actions artifact. It contains one PNG per decoded icon plus `contact-sheet.png`, a labeled overview. The script reads LVGL v7 four-byte image headers and decodes the little-endian RGB565 pixels. The logo may be a raw 480×320 RGB565 screen image without an LVGL header, so the exporter handles that format separately. It skips `FontUNIGBK.bin`, which is font data rather than an image. `FontUNIGBK.bin` is skipped because it is font data rather than an image.
 
 The PNGs let you inspect and recover a viewable copy of the decoded icons. RGB565 stores fewer color levels than the original JPG or PNG, so this cannot reconstruct the exact original source pixels; exporting PNG avoids adding another lossy JPEG pass. Preview files are separate from the `assets/` folder that goes on the SD card. Use the packaged `GTM32Source.bin` basename for flashing; `firmware.bin` is only PlatformIO's intermediate output name.
 
@@ -56,6 +40,6 @@ The PNGs let you inspect and recover a viewable copy of the decoded icons. RGB56
 4. Repeat the runout test with each configured sensor and verify the polarity on the actual sensor wiring.
 5. Enable PLR, start an SD print, and test power interruption at multiple points after valid layer checkpoints. Confirm that the boot prompt appears and resumes the same file near the saved position.
 6. Repeat the power interruption test during an active filament pause and verify the saved SD position and restored machine state.
-7. On the Mizar S TFT, inspect every screen/icon that uses an aliased asset; confirm icons remain understandable and correctly placed before treating this test package as suitable for regular use.
+7. On the Mizar S TFT, inspect every screen/icon that uses an aliased asset; confirm all official Geeetech icons and text render correctly before treating this test package as suitable for regular use.
 
 These are hardware validation steps, not results claimed by this source review. GitHub Actions successfully compiled the Geeetech LCD35 firmware for this branch; the printer-side tests above are still pending.
