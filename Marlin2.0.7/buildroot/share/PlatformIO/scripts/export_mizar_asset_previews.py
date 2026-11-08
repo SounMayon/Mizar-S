@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Export MKS/LVGL RGB565 .bin icons as viewable PNG previews.
 
-LVGL v7 true-color binary images start with a 4-byte image header followed by
-little-endian RGB565 pixels. This recovers the quantized image, not the original
-JPEG/PNG source. FontUNIGBK.bin is not an image and is deliberately ignored.
+LVGL v7 true-color binary images have a 4-byte header and little-endian RGB565
+pixels. The MKS archive's icon files have one trailing padding byte; its
+bmp_logo.bin is a raw 480x320 RGB565 frame without an LVGL header. This recovers
+the quantized image, not the original JPEG/PNG source. FontUNIGBK.bin is a font
+and is deliberately ignored.
 """
 from pathlib import Path
 import struct
@@ -12,8 +14,33 @@ import sys
 from PIL import Image, ImageDraw
 
 
+def rgb565_image(pixel_data: bytes, width: int, height: int) -> Image.Image:
+    pixels = []
+    for (value,) in struct.iter_unpack("<H", pixel_data):
+        red5 = (value >> 11) & 0x1F
+        green6 = (value >> 5) & 0x3F
+        blue5 = value & 0x1F
+        pixels.append(((red5 * 255 + 15) // 31,
+                       (green6 * 255 + 31) // 63,
+                       (blue5 * 255 + 15) // 31))
+    image = Image.new("RGB", (width, height))
+    image.putdata(pixels)
+    return image
+
+
 def decode_rgb565(path: Path) -> Image.Image:
     data = path.read_bytes()
+
+    # The MKS logo is a raw full-screen frame, not a headered LVGL image.
+    if path.name.lower() == "bmp_logo.bin":
+        width, height = 480, 320
+        if len(data) != width * height * 2:
+            raise ValueError(
+                f"raw logo size is {len(data)} bytes; expected {width * height * 2} "
+                f"for {width}x{height} RGB565"
+            )
+        return rgb565_image(data, width, height)
+
     if len(data) < 4:
         raise ValueError("file is shorter than the LVGL image header")
 
@@ -28,24 +55,15 @@ def decode_rgb565(path: Path) -> Image.Image:
         raise ValueError(f"invalid image dimensions {width}x{height}")
 
     expected_size = 4 + width * height * 2
-    if len(data) != expected_size:
+    # MKS-converted icons have a single trailing byte beyond the LVGL header and
+    # pixel payload. Ignore only that byte; any other size discrepancy is an error.
+    if len(data) not in (expected_size, expected_size + 1):
         raise ValueError(
             f"size mismatch for {width}x{height}: got {len(data)} bytes, "
-            f"expected {expected_size}"
+            f"expected {expected_size} bytes (or one trailing padding byte)"
         )
 
-    pixels = []
-    for (value,) in struct.iter_unpack("<H", data[4:]):
-        red5 = (value >> 11) & 0x1F
-        green6 = (value >> 5) & 0x3F
-        blue5 = value & 0x1F
-        pixels.append(((red5 * 255 + 15) // 31,
-                       (green6 * 255 + 31) // 63,
-                       (blue5 * 255 + 15) // 31))
-
-    image = Image.new("RGB", (width, height))
-    image.putdata(pixels)
-    return image
+    return rgb565_image(data[4:expected_size], width, height)
 
 
 def main() -> None:
