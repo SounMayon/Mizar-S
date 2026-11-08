@@ -22,7 +22,7 @@ La version embarquée visée est celle annoncée par Geeetech, **MizarS_FM_V201A
 
 La personnalisation la plus étendue touche `Marlin/src/lcd/extui/lib/mks_ui/`: écran tactile couleur, menus Geeetech, navigation, dialogues, écran d'impression, réglages, traductions et chargement des ressources graphiques (`assets`). Cette interface a ses propres chemins d'exécution en plus de l'interface LCD standard de Marlin.
 
-Conséquence opérationnelle : le binaire seul ne suffit pas toujours à restaurer l'interface. La procédure Geeetech demande le répertoire `assets` sur la carte TF avec le firmware. Le workflow de cette branche prépare donc l'artefact avec le binaire et ces ressources.
+Conséquence opérationnelle : le binaire seul ne suffit pas toujours à restaurer l'interface. La procédure Geeetech demande le répertoire `assets` sur la carte TF avec le firmware. **L'artefact de cette branche ne contient actuellement pas le jeu d'assets Mizar S vérifié et ne doit pas être considéré comme prêt à flasher.** Le script PlatformIO `download_mks_assets.py` récupère à la compilation `makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/master.zip`, sans commit fixé. Ces ressources externes ne proviennent pas de `Resource/` et ne sont pas garanties identiques au paquet Mizar S.
 
 Les fichiers d'écran modifiés sont listés ci-dessous; les changements MKS sont distribués dans de nombreux fichiers, pas encapsulés dans un unique module.
 
@@ -67,7 +67,7 @@ Les autres changements touchent la gestion des commandes G-code, pause M0/M1/M60
 - `geeetech_lcd35.py` : itération sur une copie de `CPPDEFINES` pour éviter la mutation de la collection pendant son parcours dans l'environnement GitHub Actions;
 - workflow GitHub Actions et documentation de compilation/récupération.
 
-La compilation GitHub du profil Geeetech `geeetech_lcd35` a réussi sur cette branche; journal : [workflow firmware-build](https://github.com/SounMayon/Mizar-S/actions/runs/42511723832). Cette preuve valide la compilation du profil et la création de l'artefact, pas le flashage, l'interface sur TFT réel, la détection matérielle du capteur ni les scénarios de coupure d'alimentation.
+La compilation GitHub du profil Geeetech `geeetech_lcd35` a réussi sur cette branche; journal : [workflow firmware-build](https://github.com/SounMayon/Mizar-S/actions/runs/42511723832). Cette preuve valide la compilation du firmware, mais pas la justesse des assets embarqués dans l'artefact, le flashage, l'interface sur TFT réel, la détection matérielle du capteur ni les scénarios de coupure d'alimentation.
 
 ## Inventaire exhaustif des chemins divergents
 
@@ -95,6 +95,12 @@ Les chemins ci-dessous désignent le sous-répertoire `Marlin2.0.7/` du dépôt 
 - [Configuration PlatformIO Geeetech](https://github.com/Geeetech3D/Mizar-S/blob/main/Marlin2.0.7/platformio.ini)
 - [Marlin officiel 2.0.7.2](https://github.com/MarlinFirmware/Marlin/tree/2.0.7.2)
 - [Procédure Geeetech de mise à jour](https://wiki.geeetech.com/index.php/Geeetech_Mizar_S_3D_Printer#Update_Firmware)
+
+## Vérification complémentaire des assets
+
+Le dépôt contient 107 images dans `Resource/icon/` (`bmp_*.jpg`), dont les noms correspondent un pour un aux 107 entrées `.bin` de `Resource/list.txt` après remplacement de l'extension. Il contient aussi `Resource/font/FontUNIGBK.bin`. Les JPG sont les sources graphiques; ils ne sont pas les fichiers `.bin` prêts à placer dans `assets/`. Le convertisseur fourni est une application orientée Windows et sa documentation indique que la sortie `.bin` n'a pas été validée par son auteur. Le paquet d'assets Geeetech distribué dans l'archive liée doit donc servir de référence de sortie, mais il n'a pas encore été incorporé ni comparé octet par octet ici.
+
+**À corriger avant livraison d'un paquet flashable :** récupérer les assets compilés exacts de Geeetech Mizar S (107 icônes `.bin` plus `FontUNIGBK.bin` si requis), les versionner ou les fournir au workflow de manière vérifiable, remplacer la source MKS générique non épinglée, puis vérifier noms, tailles et empreintes.
 
 ## Limites
 
