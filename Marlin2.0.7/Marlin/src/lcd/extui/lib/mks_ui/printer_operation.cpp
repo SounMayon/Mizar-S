@@ -230,16 +230,10 @@ void filament_pin_setup() {
 }
 
 void filament_check() {
-  const int FIL_DELAY = 20;
+  // Debounce each sensor once per UI polling cycle.
+  constexpr uint8_t FIL_DELAY = 20;
   #if PIN_EXISTS(MT_DET_1)
-    static int fil_det_count_1 = 0;
-    if (!READ(MT_DET_1_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (READ(MT_DET_1_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (fil_det_count_1 > 0)
-      fil_det_count_1--;
-
+    static uint8_t fil_det_count_1 = 0;
     if (!READ(MT_DET_1_PIN) && !MT_DET_PIN_INVERTING)
       fil_det_count_1++;
     else if (READ(MT_DET_1_PIN) && MT_DET_PIN_INVERTING)
@@ -249,14 +243,7 @@ void filament_check() {
   #endif
 
   #if PIN_EXISTS(MT_DET_2)
-    static int fil_det_count_2 = 0;
-    if (!READ(MT_DET_2_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (READ(MT_DET_2_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (fil_det_count_2 > 0)
-      fil_det_count_2--;
-
+    static uint8_t fil_det_count_2 = 0;
     if (!READ(MT_DET_2_PIN) && !MT_DET_PIN_INVERTING)
       fil_det_count_2++;
     else if (READ(MT_DET_2_PIN) && MT_DET_PIN_INVERTING)
@@ -266,14 +253,7 @@ void filament_check() {
   #endif
 
   #if PIN_EXISTS(MT_DET_3)
-    static int fil_det_count_3 = 0;
-    if (!READ(MT_DET_3_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (READ(MT_DET_3_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (fil_det_count_3 > 0)
-      fil_det_count_3--;
-
+    static uint8_t fil_det_count_3 = 0;
     if (!READ(MT_DET_3_PIN) && !MT_DET_PIN_INVERTING)
       fil_det_count_3++;
     else if (READ(MT_DET_3_PIN) && MT_DET_PIN_INVERTING)
@@ -293,6 +273,7 @@ void filament_check() {
       || fil_det_count_3 >= FIL_DELAY
     #endif
   ) {
+    uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
     clear_cur_ui();
     card.pauseSDPrint();
     stop_print_time();
@@ -303,8 +284,7 @@ void filament_check() {
     else
       default_preview_flg = 1;
 
-	lv_draw_dialog(DIALOG_PAUSE_MESSAGE_CHANGING);
-    //lv_draw_printing();
+    lv_draw_dialog(DIALOG_PAUSE_MESSAGE_CHANGING);
   }
 }
 
