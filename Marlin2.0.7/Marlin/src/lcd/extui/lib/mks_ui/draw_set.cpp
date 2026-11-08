@@ -184,7 +184,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event)
 			draw_led_status(buttonLed, labelLed);
 			if(uiCfg.ledSwitch == 1){
 				bltouch._whiteLedOn();
-				led_mode_state = uiCfg.ledSwitch;
+				led_mode_state = uiCfg.ledSwitch == 1 ? 2 : (uiCfg.ledSwitch == 2 ? 1 : 0);
 			}else if(uiCfg.ledSwitch == 2){
 				bltouch._colorLedOn();
 				led_onoff_sel = 1;
