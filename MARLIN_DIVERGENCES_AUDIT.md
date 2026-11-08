@@ -74,7 +74,7 @@ La branche étend ce champ à trois états : `0=éteint`, `1=couleur`, `2=blanc`
 - `geeetech_lcd35.py` : itération sur une copie de `CPPDEFINES` pour éviter la mutation de la collection pendant son parcours dans l'environnement GitHub Actions;
 - workflow GitHub Actions et documentation de compilation/récupération.
 
-La compilation GitHub du profil Geeetech `geeetech_lcd35` a réussi sur le commit `370eb33583f941fd5d65b26ec739d22672edde0c`; [workflow firmware-build #22](https://github.com/SounMayon/Mizar-S/actions/runs/42534112599). La chaîne a été exécutée dans GitHub Actions avec restauration des assets officiels. Depuis, l'utilisateur a confirmé les tests sur l'imprimante de la détection de fin de filament suivie de la reprise après insertion/purge manuelle, ainsi que la reprise après coupure de courant. Ces résultats matériels rapportés par l'utilisateur ne valident pas M600, qui reste désactivé.
+La compilation GitHub du profil Geeetech `geeetech_lcd35` a réussi sur le commit final de code `5e3f1c65a18958ddf1b726779220e84620483e44`; [workflow firmware-build #29](https://github.com/SounMayon/Mizar-S/actions/runs/42535845365). La chaîne a été exécutée dans GitHub Actions avec restauration des assets officiels. Depuis, l'utilisateur a confirmé les tests sur l'imprimante de la détection de fin de filament suivie de la reprise après insertion/purge manuelle, ainsi que la reprise après coupure de courant. Ces résultats matériels rapportés par l'utilisateur ne valident ni la nouvelle mémorisation du mode LED ni M600, qui reste désactivé.
 
 ## Inventaire exhaustif des chemins divergents
 
