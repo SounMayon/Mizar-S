@@ -35,12 +35,15 @@ jobs:
       - name: Prepare Mizar S display assets
         run: python Marlin2.0.7/buildroot/share/PlatformIO/scripts/prepare_mizar_assets.py
 
+      - name: Set GTM32 flash filename
+        run: cp Marlin2.0.7/.pio/build/geeetech_lcd35/firmware.bin Marlin2.0.7/.pio/build/geeetech_lcd35/GTM32Source.bin
+
       - name: Upload firmware build
         uses: actions/upload-artifact@v4
         with:
           name: mizar-s-geeetech-lcd35
           path: |
-            Marlin2.0.7/.pio/build/geeetech_lcd35/firmware.bin
+            Marlin2.0.7/.pio/build/geeetech_lcd35/GTM32Source.bin
             Marlin2.0.7/.pio/build/geeetech_lcd35/assets/
           if-no-files-found: error
           retention-days: 14
