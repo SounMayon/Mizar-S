@@ -24,7 +24,7 @@ The GitHub Actions build pins the MKS asset archive to commit `af5eb011d08f2a2e1
 
 ### Reverse-exporting the display icons
 
-The same workflow runs `export_mizar_asset_previews.py` and adds an `assets-preview/` directory to the GitHub Actions artifact. It contains one PNG per decoded icon plus `contact-sheet.png`, a labeled overview. The script reads the LVGL v7 four-byte image header, checks that the dimensions and pixel data length agree, and decodes the little-endian RGB565 pixels. `FontUNIGBK.bin` is skipped because it is font data rather than an image.
+The same workflow runs `export_mizar_asset_previews.py` and adds an `assets-preview/` directory to the GitHub Actions artifact. It contains one PNG per decoded icon plus `contact-sheet.png`, a labeled overview. The script reads LVGL v7 four-byte image headers and decodes the little-endian RGB565 pixels. MKS icon files have one extra trailing byte, which the exporter discards after validating the declared pixel dimensions. The MKS `bmp_logo.bin` is a raw 480×320 RGB565 screen image without an LVGL header, so the exporter handles it separately. `FontUNIGBK.bin` is skipped because it is font data rather than an image.
 
 The PNGs let you inspect and recover a viewable copy of the decoded icons. RGB565 stores fewer color levels than the original JPG or PNG, so this cannot reconstruct the exact original source pixels; exporting PNG avoids adding another lossy JPEG pass. Preview files are separate from the `assets/` folder that goes on the SD card. Use the packaged `GTM32Source.bin` basename for flashing; `firmware.bin` is only PlatformIO's intermediate output name.
 
