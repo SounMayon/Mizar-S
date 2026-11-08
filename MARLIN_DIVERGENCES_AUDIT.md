@@ -14,7 +14,7 @@ La version embarquée visée est celle annoncée par Geeetech, **MizarS_FM_V201A
 
 - Carte principale sélectionnée : `BOARD_GTM32_LCD35_A10`, avec définitions de broches propres à la carte GTM32 et au TFT35.
 - Ajout de cartes et fichiers de configuration de broches Geeetech, d'un linker script STM32 dédié et d'un script PlatformIO dédié.
-- Environnement recommandé par le dépôt : `geeetech_lcd35`, basé sur STM32F103VE; le `default_envs` du dépôt pointe sur cet environnement.
+- Environnement recommandé par le dépôt : `geeetech_lcd35`, basé sur STM32F103VE; le `default_envs` du dépôt pointe sur cet environnement. PlatformIO génère `firmware.bin`, puis le workflow de cette branche le copie sous le nom requis par le bootloader GTM32 : `GTM32Source.bin`.
 - Le script de build injecte les paramètres spécifiques au bootloader/à la mémoire et au modèle d'écran. Ce script est donc une dépendance réelle de la production du binaire, pas un simple raccourci.
 - Paramètres machine configurés pour l'imprimante : un extrudeur, thermistances de buse et plateau, géométrie/course, fins de course, pas moteurs, limites de température et réglages PID, ainsi que capteur de nivellement propre à la machine.
 
