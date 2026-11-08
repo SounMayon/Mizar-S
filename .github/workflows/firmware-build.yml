@@ -7,6 +7,8 @@ on:
     paths:
       - "Marlin2.0.7/**"
       - ".github/workflows/firmware-build.yml"
+      - "MizarS_FM_V201A_230512.rar"
+      - "Resource/list.txt"
   workflow_dispatch:
 
 permissions:
@@ -25,17 +27,60 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install PlatformIO and preview dependency
-        run: python -m pip install --upgrade pip platformio Pillow
+      - name: Install PlatformIO, preview dependency, and 7-Zip
+        run: |
+          python -m pip install --upgrade pip platformio Pillow
+          sudo apt-get update
+          sudo apt-get install --yes 7zip
 
       - name: Compile firmware
         working-directory: Marlin2.0.7
         run: pio run --environment geeetech_lcd35
 
-      - name: Prepare Mizar S display assets
-        run: python Marlin2.0.7/buildroot/share/PlatformIO/scripts/prepare_mizar_assets.py
+      - name: Restore official Geeetech Mizar S display assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          official_dir="$RUNNER_TEMP/mizar-s-v201a"
+          mkdir -p "$official_dir"
+          7z x -y "MizarS_FM_V201A_230512.rar" "-o$official_dir"
 
-      - name: Export decoded image previews
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import shutil
+
+          root = Path.cwd()
+          official_assets = Path(__import__("os").environ["RUNNER_TEMP"]) / "mizar-s-v201a" / "assets"
+          build_assets = root / "Marlin2.0.7/.pio/build/geeetech_lcd35/assets"
+          expected_file = root / "Resource/list.txt"
+
+          expected = re.findall(r'"([^"]+\.bin)"', expected_file.read_text(encoding="utf-8"))
+          if len(expected) != 107 or len(set(expected)) != 107:
+              raise SystemExit(f"Expected 107 unique Mizar S icons, got {len(expected)}")
+          if not official_assets.is_dir():
+              raise SystemExit(f"Official asset directory missing: {official_assets}")
+
+          official_names = {path.name for path in official_assets.iterdir() if path.is_file()}
+          missing = sorted(set(expected) - official_names)
+          if missing:
+              raise SystemExit("Official archive is missing expected icons: " + ", ".join(missing))
+          if "FontUNIGBK.bin" not in official_names:
+              raise SystemExit("Official archive is missing FontUNIGBK.bin")
+
+          actual_icons = {name for name in official_names if name.lower().endswith(".bin") and name.lower() != "fontunigbk.bin"}
+          if actual_icons != set(expected):
+              raise SystemExit(
+                  "Official icon set does not exactly match Resource/list.txt; "
+                  f"unexpected={sorted(actual_icons - set(expected))}, missing={sorted(set(expected) - actual_icons)}"
+              )
+
+          shutil.rmtree(build_assets)
+          shutil.copytree(official_assets, build_assets)
+          print(f"Installed {len(expected)} exact Geeetech icon assets and the original FontUNIGBK.bin.")
+          PY
+
+      - name: Export decoded official icon previews
         run: >-
           python Marlin2.0.7/buildroot/share/PlatformIO/scripts/export_mizar_asset_previews.py
           Marlin2.0.7/.pio/build/geeetech_lcd35/assets
@@ -44,7 +89,7 @@ jobs:
       - name: Set GTM32 flash filename
         run: cp Marlin2.0.7/.pio/build/geeetech_lcd35/firmware.bin Marlin2.0.7/.pio/build/geeetech_lcd35/GTM32Source.bin
 
-      - name: Upload firmware and asset previews
+      - name: Upload firmware and official asset previews
         uses: actions/upload-artifact@v4
         with:
           name: mizar-s-geeetech-lcd35
