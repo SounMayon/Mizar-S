@@ -14,7 +14,7 @@ After the pause motion completes, the dialog's Confirm button now resumes only w
 
 The source enables `POWER_LOSS_RECOVERY` by default in `Marlin/Configuration_adv.h`. The GTM32 LCD35 A10 board pin map assigns `POWER_LOSS_PIN` to PE3, and the configured loss state is LOW. Recovery data is stored through `POWER_LOSS_STORAGE_EEPROM`; the saved state includes the SD filename and offset, position, temperatures, fan state, feedrate, and other print settings. At startup, a valid recovery record queues `M1000 S`; recovery restores machine state and resumes the SD file at its saved offset.
 
-A recovery prompt requires a valid saved record. The firmware can only resume SD-card jobs, and a record may not be usable if power disappears before a valid checkpoint is committed, the card or EEPROM data is unavailable, or the job has completed. The power-loss input, board power hold-up, and EEPROM persistence need to be checked on the physical printer to explain intermittent recovery prompts.
+A recovery prompt requires a valid saved record. With the MKS/LVGL board mapping, the PE3 outage input can trigger an immediate save, while regular position checkpoints also update the recovery state. A record may be unavailable if the outage signal is not detected, power does not remain stable long enough to finish the EEPROM write, the SD card or EEPROM data is unavailable, or the job has completed. The firmware can only resume SD-card jobs. These hardware and persistence paths need to be checked on the printer to explain intermittent recovery prompts.
 
 ## Verification checklist
 
