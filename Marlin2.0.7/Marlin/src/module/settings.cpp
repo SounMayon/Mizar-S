@@ -287,7 +287,7 @@ typedef struct SettingsDataStruct {
 
     //
     // Device settings
-    bool led_onoff_state;
+    uint8_t led_mode_state;
 
 //
 // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -889,9 +889,9 @@ bool MarlinSettings::save()
     //Device setttings
     //
     {
-        _FIELD_TEST(led_onoff_state);
-        const bool led_onoff_state = led_onoff_sel;
-        EEPROM_WRITE(led_onoff_state);
+        _FIELD_TEST(led_mode_state);
+        const uint8_t led_mode_state = ::led_mode_state;
+        EEPROM_WRITE(led_mode_state);
     }
 
     //
@@ -1832,9 +1832,9 @@ bool MarlinSettings::_load()
         // Device settings
         //
         {
-            _FIELD_TEST(led_onoff_state);
-            const bool &led_onoff_state = led_onoff_sel;
-            EEPROM_READ(led_onoff_state);
+            _FIELD_TEST(led_mode_state);
+            uint8_t &led_mode_state_ref = ::led_mode_state;
+            EEPROM_READ(led_mode_state_ref);
         }
 
         //
@@ -2845,7 +2845,7 @@ void MarlinSettings::reset()
     //
     // Device settings
     //
-    led_onoff_sel = 0;
+    led_mode_state = 0;
 
     //
     // Endstop Adjustments
