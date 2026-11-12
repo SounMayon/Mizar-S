@@ -2844,8 +2844,9 @@ void MarlinSettings::reset()
 
     //
     // Device settings
-    //
-    led_mode_state = 0;
+    // Default LED mode: white
+    // 0 = OFF, 1 = COLOR, 2 = WHITE
+    led_mode_state = 2;
 
     //
     // Endstop Adjustments
